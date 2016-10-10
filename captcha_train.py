@@ -30,8 +30,6 @@ def print_activations(t):
 	print(t.op.name, t.get_shape().as_list())
 
 def weight_variable(name,shape):
-	# initial = tf.truncated_normal(shape, dtype=tf.float32, stddev=0.1)
-	# return tf.Variable(initial)
         return tf.get_variable(name, shape, initializer=tf.contrib.layers.xavier_initializer())
 
 def bias_variable(shape):
@@ -126,8 +124,7 @@ def accuracy_func(_pred, _y):
 
 pred = ocr_net(x, weights, biases)
 
-# cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(pred,y)
-cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(pred,y)
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(pred,y)
 cost = tf.reduce_mean(cross_entropy)
 
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
