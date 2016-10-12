@@ -154,7 +154,7 @@ biases = {
 }
 
 def train():
-        with tf.Session(config=tf.ConfigProto(log_device_placement=True)) as sess:
+        with tf.Session() as sess:
                 pred = ocr_net(x, weights, biases)
                 with tf.name_scope('cross_entropy'):
                         cross_entropy = tf.nn.softmax_cross_entropy_with_logits(pred,y)
