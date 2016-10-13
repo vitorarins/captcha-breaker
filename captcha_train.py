@@ -13,7 +13,7 @@ width = 180
 resize_width = 88
 height = 60
 resize_height = 24
-color_channels = 1
+color_channels = 3
 n_chars = 5
 n_classes = 36  # 10+26
 n_training_samples = 180000
@@ -27,7 +27,7 @@ data_train = OCR_data(n_training_samples, './images/train', n_classes)
 data_test = OCR_data(n_test_samples, './images/test', n_classes)
 
 # tf Graph input
-x = tf.placeholder(tf.float32, [None, resize_height, resize_width])
+x = tf.placeholder(tf.float32, [None, resize_height, resize_width, color_channels])
 y = tf.placeholder(tf.float32, [None, n_chars*n_classes])
 
 def print_activations(t):
