@@ -25,7 +25,7 @@ class OCR_data(object):
         self._labels = np.array(self._labels)
 
     def create_captcha(self, pathAndFilename):
-        img = cv2.imread(pathAndFilename, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread(pathAndFilename, cv2.IMREAD_COLOR)
         img = cv2.resize(img,(self.resize_width, self.resize_height), interpolation=cv2.INTER_AREA)
         filename, ext = os.path.splitext(os.path.basename(pathAndFilename))
         label = self.create_label(filename)
