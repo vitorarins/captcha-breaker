@@ -9,21 +9,19 @@ decay_rate = 0.9
 momentum = 0.9
 l2_beta_param = 3e-4
 dropout_keep_prob = 0.75
-training_iters = 200000
+training_iters = 500000
 batch_size = 64
-display_step = 20
+display_step = 100
 summaries_dir = 'logs'
 
 # Network Parameters
-width = 180
 resize_width = 88
-height = 60
 resize_height = 24
 color_channels = 1
 n_chars = 5
 n_classes = 36  # 10+26
 n_training_samples = 180000
-n_test_samples = 100
+n_test_samples = 8000
 fc_num_outputs = 4096
 
 # Calculate Elapsed time
@@ -35,8 +33,6 @@ data_test = OCR_data(n_test_samples, './images/test', n_classes)
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, resize_height, resize_width, color_channels])
 y = tf.placeholder(tf.float32, [None, n_chars*n_classes])
-# x_test = tf.placeholder(tf.float32, [n_test_samples, resize_height, resize_width, color_channels])
-# y_test = tf.placeholder(tf.float32, [n_test_samples, n_chars*n_classes])
 
 def print_activations(t):
 	print(t.op.name, t.get_shape().as_list())
@@ -126,17 +122,9 @@ def ocr_net(_x, _weights, _biases, keep_prob):
 	fc25 = tf.nn.relu(tf.matmul(fc1, _weights['out5']) + _biases['out5'], name='fc25')
 	print_activations(fc25)
 
-	# out = tf.concat(1, [fc21, fc22, fc23, fc24, fc25], name='out')
-	# print_activations(out)
 	return [fc21, fc22, fc23, fc24, fc25]
 
 def accuracy_func(predictions, labels):
-        # predictions = tf.reshape(predictions, shape=[-1, n_chars, n_classes])
-        # labels = tf.reshape(labels, shape=[-1, n_chars, n_classes])
-        # truth_table = np.zeros((predictions.get_shape().as_list()[0],5))
-        # for i in range(5):
-        #         truth_table[:,i] = tf.argmax(predictions[:,i,:], 1) == tf.argmax(labels[:,i,:], 1)
-        # return (100 * np.sum(np.amin(truth_table, axis = 1))/predictions.get_shape().as_list()[0])
         with tf.name_scope('accuracy'):
 	        y = tf.reshape(labels, shape=[-1, n_chars, n_classes])
                 with tf.name_scope('prediction'):
@@ -181,6 +169,8 @@ biases = {
 
 def train():
         with tf.Session() as sess:
+                saver = tf.train.Saver()
+
                 logits = ocr_net(x, weights, biases, dropout_keep_prob)
 
                 with tf.name_scope('loss'):
@@ -203,9 +193,7 @@ def train():
                 global_step = tf.Variable(0)
                 learning_rate = tf.train.exponential_decay(initial_learning_rate, global_step, decay_steps, decay_rate)
                 with tf.name_scope('train'):
-                        # optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
                         optimizer = tf.train.MomentumOptimizer(learning_rate, momentum).minimize(loss, global_step=global_step)
-                        # optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
                 pred = softmax_joiner(logits)
                 accuracy = accuracy_func(pred, y)
 
@@ -241,6 +229,9 @@ def train():
                 minutes = (elapsed_time % 3600) / 60
                 seconds = (elapsed_time % 3600) % 60
                 print "Total time was: " + "{:.0f}h".format(hours) + ", {:.0f}m".format(minutes) + ", {:.0f}s".format(seconds)
+                # Save the variables to disk.
+                save_path = saver.save(sess, "sintegra_sc_model.ckpt")
+                print("Model saved in file: %s" % save_path)
                 
                 test_writer = tf.train.SummaryWriter(summaries_dir + '/test')
 	        test_batch = data_test.next_batch(n_test_samples)
