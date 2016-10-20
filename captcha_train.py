@@ -230,7 +230,7 @@ def train():
                 seconds = (elapsed_time % 3600) % 60
                 print "Total time was: " + "{:.0f}h".format(hours) + ", {:.0f}m".format(minutes) + ", {:.0f}s".format(seconds)
                 # Save the variables to disk.
-                save_path = saver.save(sess, "sintegra_sc_model.ckpt")
+                save_path = saver.save(sess, "models/sintegra_sc_model.ckpt")
                 print("Model saved in file: %s" % save_path)
                 
                 test_writer = tf.train.SummaryWriter(summaries_dir + '/test')
@@ -242,4 +242,6 @@ def train():
 if tf.gfile.Exists(summaries_dir):
         tf.gfile.DeleteRecursively(summaries_dir)
 tf.gfile.MakeDirs(summaries_dir)
+if not tf.gfile.Exists('models'):
+	tf.gfile.MakeDirs('models')
 train()

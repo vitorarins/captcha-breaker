@@ -2,3 +2,4 @@ images/
 logs/
 *.pyc
 train.log
+models/
