@@ -1,11 +1,10 @@
 import glob, os
 import numpy as np
-from scipy import ndimage, misc
 import cv2
 import random
 
 class OCR_data(object):
-    def __init__(self, num, data_dir, num_classes, batch_size=50, len_code=5, height=60, width=180, resize_height=24, resize_width=88, pixel_depth=255.0, num_channels=1):
+    def __init__(self, num, data_dir, num_classes, batch_size=50, len_code=5, height=60, width=180, resize_height=24, resize_width=88, num_channels=1):
         self.num = num
         self.data_dir = data_dir
         self.num_classes = num_classes
@@ -15,7 +14,6 @@ class OCR_data(object):
         self.width = width
         self.resize_height = resize_height
         self.resize_width = resize_width
-        self.pixel_depth = pixel_depth
         self.num_channels = num_channels
         self.index_in_epoch = 0
         self._imgs = []
