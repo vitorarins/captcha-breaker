@@ -34,6 +34,32 @@ data_test = OCR_data(n_test_samples, './images/test', n_classes)
 x = tf.placeholder(tf.float32, [None, resize_height, resize_width, color_channels])
 y = tf.placeholder(tf.float32, [None, n_chars*n_classes])
 
+weights = {
+	'wc1': weight_variable('wc1',[5, 5, color_channels, 64]),
+	'wc2': weight_variable('wc2',[5, 5, 64, 128]),
+	'wc3': weight_variable('wc3',[5, 5, 128, 256]),
+	'wc4': weight_variable('wc4',[3, 3, 256, 512]),
+	'wd1': weight_variable('wd1',[(resize_height/8)*(resize_width/8)*512, fc_num_outputs]),
+	'out1': weight_variable('out1',[fc_num_outputs, n_classes]),
+	'out2': weight_variable('out2',[fc_num_outputs, n_classes]),
+	'out3': weight_variable('out3',[fc_num_outputs, n_classes]),
+	'out4': weight_variable('out4',[fc_num_outputs, n_classes]),
+	'out5': weight_variable('out5',[fc_num_outputs, n_classes])
+}
+
+biases = {
+	'bc1': bias_variable([64]),
+	'bc2': bias_variable([128]),
+	'bc3': bias_variable([256]),
+        'bc4': bias_variable([512]),
+	'bd1': bias_variable([fc_num_outputs]),
+	'out1': bias_variable([n_classes]),
+	'out2': bias_variable([n_classes]),
+	'out3': bias_variable([n_classes]),
+	'out4': bias_variable([n_classes]),
+	'out5': bias_variable([n_classes])
+}
+
 def print_activations(t):
 	print(t.op.name, t.get_shape().as_list())
 
@@ -68,9 +94,9 @@ def conv2d(x, W, B, name):
 		conv = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 		bias = tf.nn.bias_add(conv, B)
                 with tf.name_scope('Wx_plus_b'):
-                        tf.histogram_summary(name + '/pre_activatioins', bias)
+                        tf.histogram_summary(name + '/pre_activations', bias)
 		conv = tf.nn.relu(bias, name=scope)
-                tf.histogram_summary(name + '/activatioins', conv)
+                tf.histogram_summary(name + '/activations', conv)
 		return conv
 
 
@@ -80,20 +106,17 @@ def ocr_net(_x, _weights, _biases, keep_prob):
 
 	conv1 = conv2d(_x, _weights['wc1'], _biases['bc1'], 'conv1')
 	print_activations(conv1)
-        lrn1 = tf.nn.local_response_normalization(conv1)
-	pool1 = max_pool(lrn1, k=2, name='pool1')
+	pool1 = max_pool(conv1, k=2, name='pool1')
 	print_activations(pool1)
 
 	conv2 = conv2d(pool1, _weights['wc2'], _biases['bc2'], 'conv2')
 	print_activations(conv2)
-        lrn2 = tf.nn.local_response_normalization(conv2)
-	pool2 = max_pool(lrn2, k=2, name='pool2')
+	pool2 = max_pool(conv2, k=2, name='pool2')
 	print_activations(pool2)
 
 	conv3 = conv2d(pool2, _weights['wc3'], _biases['bc3'], 'conv3')
 	print_activations(conv3)
-        lrn3 = tf.nn.local_response_normalization(conv3)
-	pool3 = max_pool(lrn3, k=2, name='pool3')
+	pool3 = max_pool(conv3, k=2, name='pool3')
 	print_activations(pool3)
 
 	conv4 = conv2d(pool3, _weights['wc4'], _biases['bc4'], 'conv4')
@@ -140,32 +163,6 @@ def softmax_joiner(logits):
         return tf.transpose(tf.pack([tf.nn.softmax(logits[0]), tf.nn.softmax(logits[1]), \
                                      tf.nn.softmax(logits[2]), tf.nn.softmax(logits[3]), \
                                      tf.nn.softmax(logits[4])]), perm = [1,0,2])
-
-weights = {
-	'wc1': weight_variable('wc1',[5, 5, color_channels, 64]),
-	'wc2': weight_variable('wc2',[5, 5, 64, 128]),
-	'wc3': weight_variable('wc3',[5, 5, 128, 256]),
-	'wc4': weight_variable('wc4',[3, 3, 256, 512]),
-	'wd1': weight_variable('wd1',[(resize_height/8)*(resize_width/8)*512, fc_num_outputs]),
-	'out1': weight_variable('out1',[fc_num_outputs, n_classes]),
-	'out2': weight_variable('out2',[fc_num_outputs, n_classes]),
-	'out3': weight_variable('out3',[fc_num_outputs, n_classes]),
-	'out4': weight_variable('out4',[fc_num_outputs, n_classes]),
-	'out5': weight_variable('out5',[fc_num_outputs, n_classes])    
-}
-
-biases = {
-	'bc1': bias_variable([64]),
-	'bc2': bias_variable([128]),
-	'bc3': bias_variable([256]),
-        'bc4': bias_variable([512]),
-	'bd1': bias_variable([fc_num_outputs]),
-	'out1': bias_variable([n_classes]),
-	'out2': bias_variable([n_classes]),
-	'out3': bias_variable([n_classes]),
-	'out4': bias_variable([n_classes]),
-	'out5': bias_variable([n_classes])
-}
 
 def train():
         with tf.Session() as sess:
