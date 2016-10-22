@@ -34,6 +34,13 @@ data_test = OCR_data(n_test_samples, './images/test', n_classes)
 x = tf.placeholder(tf.float32, [None, resize_height, resize_width, color_channels])
 y = tf.placeholder(tf.float32, [None, n_chars*n_classes])
 
+def weight_variable(name,shape):
+        return tf.get_variable(name, shape, initializer=tf.contrib.layers.xavier_initializer())
+
+def bias_variable(shape):
+	initial = tf.constant(0.0, shape=shape)
+	return tf.Variable(initial, trainable=True)
+
 weights = {
 	'wc1': weight_variable('wc1',[5, 5, color_channels, 64]),
 	'wc2': weight_variable('wc2',[5, 5, 64, 128]),
@@ -62,13 +69,6 @@ biases = {
 
 def print_activations(t):
 	print(t.op.name, t.get_shape().as_list())
-
-def weight_variable(name,shape):
-        return tf.get_variable(name, shape, initializer=tf.contrib.layers.xavier_initializer())
-
-def bias_variable(shape):
-	initial = tf.constant(0.0, shape=shape)
-	return tf.Variable(initial, trainable=True)
 
 def max_pool(x, k, name):
 	return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1], padding='SAME', name=name)
@@ -188,7 +188,9 @@ def train():
                         tf.scalar_summary('loss', loss)
 
                 global_step = tf.Variable(0)
-                learning_rate = tf.train.exponential_decay(initial_learning_rate, global_step, decay_steps, decay_rate)
+                with tf.name_scope('learning_rate'):
+                        learning_rate = tf.train.exponential_decay(initial_learning_rate, global_step, decay_steps, decay_rate)
+                        tf.scalar_summary('learning_rate',learning_rate)
                 with tf.name_scope('train'):
                         optimizer = tf.train.MomentumOptimizer(learning_rate, momentum).minimize(loss, global_step=global_step)
                 pred = softmax_joiner(logits)
