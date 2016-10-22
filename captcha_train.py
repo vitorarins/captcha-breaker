@@ -80,17 +80,23 @@ def ocr_net(_x, _weights, _biases, keep_prob):
 
 	conv1 = conv2d(_x, _weights['wc1'], _biases['bc1'], 'conv1')
 	print_activations(conv1)
-	pool1 = max_pool(conv1, k=2, name='pool1')
+	lrn1 = tf.nn.local_response_normalization(conv1)
+	pool1 = max_pool(lrn1, k=2, name='pool1')
+        # pool1 = max_pool(conv1, k=2, name='pool1')
 	print_activations(pool1)
 
 	conv2 = conv2d(pool1, _weights['wc2'], _biases['bc2'], 'conv2')
 	print_activations(conv2)
-	pool2 = max_pool(conv2, k=2, name='pool2')
+        lrn2 = tf.nn.local_response_normalization(conv2)
+        pool2 = max_pool(lrn2, k=2, name='pool2')
+        # pool2 = max_pool(conv2, k=2, name='pool2')
 	print_activations(pool2)
 
 	conv3 = conv2d(pool2, _weights['wc3'], _biases['bc3'], 'conv3')
 	print_activations(conv3)
-	pool3 = max_pool(conv3, k=2, name='pool3')
+        lrn3 = tf.nn.local_response_normalization(conv3)
+        pool3 = max_pool(lrn3, k=2, name='pool3')
+	# pool3 = max_pool(conv3, k=2, name='pool3')
 	print_activations(pool3)
 
 	conv4 = conv2d(pool3, _weights['wc4'], _biases['bc4'], 'conv4')
