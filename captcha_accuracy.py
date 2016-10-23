@@ -18,5 +18,5 @@ def calculate_accuracy(dir, pattern):
     print "The total accuracy was: " + "{:.2f}%".format(accuracy)
     return accuracy
 
-calculate_accuracy(r'./images/test', r'*.png')
+calculate_accuracy(r'./images/accuracy', r'*.png')
 
