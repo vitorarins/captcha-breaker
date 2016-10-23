@@ -12,8 +12,6 @@ class OCR_recognizer(object):
         self.num_chars = num_chars
         self.resize_height = resize_height
         self.resize_width = resize_width
-        self._imgs = []
-        self._labels = []
         # tf Graph input
         fc_num_outputs = 4096
         self.l2_beta_param = 3e-4
@@ -96,11 +94,13 @@ class OCR_recognizer(object):
 
     def image_to_batch(self, image_path):
 	img, label = self.create_captcha(image_path)
-        self._imgs.append(img)
-        self._labels.append(label)
-        self._imgs = np.array(self._imgs).reshape((-1, self.resize_height, self.resize_width, self.num_channels)).astype(np.float32)
-        self._labels = np.array(self._labels)
-        return self._imgs[0:1], self._labels[0:1]
+        imgs = []
+        labels = []
+        imgs.append(img)
+        labels.append(label)
+        imgs = np.array(imgs).reshape((-1, self.resize_height, self.resize_width, self.num_channels)).astype(np.float32)
+        labels = np.array(labels)
+        return imgs[0:1], labels[0:1]
 
     def weight_variable(self, name, shape):
         return tf.get_variable(name, shape, initializer=tf.contrib.layers.xavier_initializer())
