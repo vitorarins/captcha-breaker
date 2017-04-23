@@ -155,17 +155,17 @@ class OCR_recognizer(object):
 	return [fc21, fc22, fc23, fc24, fc25]
 
     def softmax_joiner(self, logits):
-        return tf.transpose(tf.pack([tf.nn.softmax(logits[0]), tf.nn.softmax(logits[1]), \
+        return tf.transpose(tf.stack([tf.nn.softmax(logits[0]), tf.nn.softmax(logits[1]), \
                                      tf.nn.softmax(logits[2]), tf.nn.softmax(logits[3]), \
                                      tf.nn.softmax(logits[4])]), perm = [1,0,2])
 
     def define_graph(self):
         self.saver = tf.train.Saver()
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.logits[0],self.y[:,0:36])) +\
-               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.logits[1],self.y[:,36:72])) +\
-               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.logits[2],self.y[:,72:108])) +\
-               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.logits[3],self.y[:,108:144])) +\
-               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.logits[4],self.y[:,144:180]))
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[0],labels=self.y[:,0:36])) +\
+               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[1],labels=self.y[:,36:72])) +\
+               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[2],labels=self.y[:,72:108])) +\
+               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[3],labels=self.y[:,108:144])) +\
+               tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.logits[4],labels=self.y[:,144:180]))
 
         # adding regularizers
         regularizers = (tf.nn.l2_loss(self.weights['wc1']) + tf.nn.l2_loss(self.biases['bc1']) +
