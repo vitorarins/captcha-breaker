@@ -1,4 +1,4 @@
-import urllib
+import urllib2
 import time, os
 import captcha_crawl
 from captcha_recognizer import OCR_recognizer
@@ -15,7 +15,13 @@ def recognize():
     imageurl = request.form['imageurl']
     image_fname = './images/recog.jpg'
     if imageurl:        
-        urllib.urlretrieve(imageurl, 'images/recog.jpg')
+        proxy = urllib2.ProxyHandler({'http': '10.50.28.2:3128'})
+        opener = urllib2.build_opener(proxy)
+        urllib2.install_opener(opener)
+        img_f = open('images/recog.jpg','wb')
+        img = urllib2.urlopen(imageurl)
+        img_f.write(img.read())
+        img_f.close()
     else:
         image_fname = './images/right.jpg'
     if not app.initialized:
