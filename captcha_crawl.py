@@ -9,6 +9,9 @@ def curl(url):
     try:
         print "retrieving url... %s" % (url)
         req = urllib2.Request(url)
+        proxy = urllib2.ProxyHandler({'http': '10.50.28.2:3128'})
+        opener = urllib2.build_opener(proxy)
+        urllib2.install_opener(opener)
         response = urllib2.urlopen(req)
         return response.read().decode('ascii', 'ignore')
     except urllib2.HTTPError, e:
