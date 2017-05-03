@@ -15,9 +15,6 @@ def recognize():
     imageurl = request.form['imageurl']
     image_fname = './images/recog.jpg'
     if imageurl:        
-        proxy = urllib2.ProxyHandler({'http': '10.50.28.2:3128'})
-        opener = urllib2.build_opener(proxy)
-        urllib2.install_opener(opener)
         img_f = open('images/recog.jpg','wb')
         img = urllib2.urlopen(imageurl)
         img_f.write(img.read())
